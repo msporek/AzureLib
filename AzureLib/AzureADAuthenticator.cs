@@ -10,16 +10,16 @@ public class AzureADAuthenticator
     {
     }
 
-    public async Task<AuthenticationResult> SignIn(string clientID)
+    public async Task<AuthenticationResult> SignInAsync(string clientID)
     {
         ArgumentNullException.ThrowIfNull(clientID, nameof(clientID));
 
         new InternetOptionsHandler().ClearCookies();
 
-        return await this.AcquireAccessToken(clientID, PromptBehavior.Always);
+        return await this.AcquireAccessTokenAsync(clientID, PromptBehavior.Always);
     }
 
-    public async Task<AuthenticationResult> AcquireAccessToken(string clientID, PromptBehavior promptBehavior)
+    public async Task<AuthenticationResult> AcquireAccessTokenAsync(string clientID, PromptBehavior promptBehavior)
     {
         ArgumentNullException.ThrowIfNull(clientID, nameof(clientID));
 
@@ -27,10 +27,10 @@ public class AzureADAuthenticator
         string redirectUri = "http://localhost";
         string authorityUri = "https://login.windows.net/common/oauth2/authorize";
 
-        return await this.AcquireAccessToken(clientID, promptBehavior, redirectUri, resourceUri, authorityUri);
+        return await this.AcquireAccessTokenAsync(clientID, promptBehavior, redirectUri, resourceUri, authorityUri);
     }
 
-    public async Task<AuthenticationResult> AcquireAccessToken(string clientID, PromptBehavior promptBehavior, string redirectURI, string resourceURI, string authorityURI)
+    public async Task<AuthenticationResult> AcquireAccessTokenAsync(string clientID, PromptBehavior promptBehavior, string redirectURI, string resourceURI, string authorityURI)
     {
         ArgumentNullException.ThrowIfNull(clientID, nameof(clientID));
         ArgumentNullException.ThrowIfNull(redirectURI, nameof(redirectURI));
