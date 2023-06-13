@@ -330,6 +330,12 @@ public class AzureADClient : IAzureADClient
         return await this.GetUserAsync(userUPN, userSID, false);
     }
 
+    public async Task<User> GetUserByMailNicknameAsync(string userMailNickname)
+    {
+        return await this.FindUserAsync(
+            u => string.Equals(userMailNickname, u.MailNickname, StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task<User> GetUserBySIDAsync(string userSID)
     {
         return await this.FindUserAsync(
