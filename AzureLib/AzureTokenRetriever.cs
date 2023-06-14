@@ -28,13 +28,18 @@ public class AzureTokenRetriever
             AuthenticationResult authenticationResult = await authContext.AcquireTokenAsync(resource, credential);
             return authenticationResult.AccessToken;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
+            // TODO: Should handle the exception here. 
+
             return string.Empty;
         }
     }
 
-    public AzureTokenRetriever(string tenantID, string clientID, string clientSecret)
+    public AzureTokenRetriever(
+        string tenantID, 
+        string clientID, 
+        string clientSecret)
     {
         ArgumentException.ThrowIfNullOrEmpty(tenantID, nameof(tenantID));
         ArgumentException.ThrowIfNullOrEmpty(clientID, nameof(clientID));
