@@ -3,8 +3,14 @@ using System.Runtime.InteropServices;
 
 namespace AzureLib;
 
+/// <summary>
+/// Class uses Win32 Interop logic that allows setting internet options to clear cookies in the web browser. 
+/// </summary>
 public class InternetOptionsHandler
 {
+    /// <summary>
+    /// Method clears web browser cookies. 
+    /// </summary>
     public void ClearCookies()
     {
         const int INTERNET_OPTION_END_BROWSER_SESSION = 42;
