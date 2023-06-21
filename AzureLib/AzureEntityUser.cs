@@ -1,5 +1,8 @@
 ﻿namespace AzureLib;
 
+/// <summary>
+/// Model class that represents Azure Users. 
+/// </summary>
 public class AzureEntityUser : AzureEntity
 {
     public string UserPrincipalName { get; set; }
