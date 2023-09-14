@@ -6,10 +6,22 @@ using System.Threading.Tasks;
 
 namespace AzureLib;
 
+/// <summary>
+/// Class comes with the functionalities for retrieving information from Azure Active Directory about Users, Groups, User membership in 
+/// Groups, Domains. It comes with logic meant for finding Azure AD objects by a variety of criteria. 
+/// </summary>
 public class AzureADClient : IAzureADClient
 {
     private GraphServiceClient _graphServiceClient;
 
+    /// <summary>
+    /// Constructor creates a new instance of <see cref="AzureADClient"/> class with the <paramref name="graphServiceClient"/> 
+    /// provided as an argument.
+    /// </summary>
+    /// 
+    /// <param name="graphServiceClient">Graph Service Client instance.</param>
+    /// 
+    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="graphServiceClient"/> is null.</exception>
     public AzureADClient(GraphServiceClient graphServiceClient)
     {
         ArgumentNullException.ThrowIfNull(graphServiceClient, nameof(graphServiceClient));
@@ -17,6 +29,11 @@ public class AzureADClient : IAzureADClient
         this._graphServiceClient = graphServiceClient;
     }
 
+    /// <summary>
+    /// Method retrieves a list of domains from Azure Active Directory.
+    /// </summary>
+    /// 
+    /// <returns>A list of domains retrieved from Azure Active Directory.</returns>
     public async Task<List<Domain>> GetAllDomainsAsync()
     {
         List<Domain> allDomains = new List<Domain>();
@@ -39,12 +56,27 @@ public class AzureADClient : IAzureADClient
         return allDomains;
     }
 
+    /// <summary>
+    /// Method retrieves a list of verified domains from Azure Active Directory.
+    /// </summary>
+    /// 
+    /// <returns>A list of verified domains retrieved from Azure Active Directory.</returns>
     public async Task<List<Domain>> GetAllVerifiedDomainsAsync()
     {
         List<Domain> allDomains = await this.GetAllDomainsAsync();
         return allDomains.Where(d => (d.IsVerified.HasValue) && (d.IsVerified.Value)).ToList();
     }
 
+    /// <summary>
+    /// Method retrieves a user from Azure Active Directory that meets the provided <paramref name="userPredicate"/>. 
+    /// </summary>
+    /// 
+    /// <param name="userPredicate">Predicate to be met by the Azure Active Directory user.</param>
+    /// 
+    /// <returns>The first user found that meets the provided <paramref name="userPredicate"/>, or null if no such 
+    /// user was found.</returns>
+    /// 
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="group"/> is null.</exception>
     public async Task<User> FindUserAsync(Func<User, bool> userPredicate)
     {
         ArgumentNullException.ThrowIfNull(userPredicate, nameof(userPredicate));
@@ -71,6 +103,16 @@ public class AzureADClient : IAzureADClient
         return null;
     }
 
+    /// <summary>
+    /// Method retrieves all Azure AD objects (instances of <see cref="User" />, or <see cref="Group"/> classes) that are 
+    /// members of <paramref name="group"/>. 
+    /// </summary>
+    /// 
+    /// <param name="group">Azure Active Directory group to find members of.</param>
+    /// 
+    /// <returns>A list with all members of <paramref name="group"/>.</returns>
+    /// 
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="group"/> is null.</exception>
     public async Task<List<User>> GetAllUserMembersOfGroupAsync(Group group)
     {
         ArgumentNullException.ThrowIfNull(group, nameof(group));
@@ -240,13 +282,13 @@ public class AzureADClient : IAzureADClient
                     u => new
                     {
                         u.Id,
-                        u.Mail, 
+                        u.Mail,
                         u.DisplayName,
                         u.GivenName,
                         u.UserType,
                         u.UserPrincipalName
                     });
-        
+
         do
         {
             IGraphServiceUsersCollectionPage usersPage = await usersRequest.GetAsync();
@@ -326,6 +368,12 @@ public class AzureADClient : IAzureADClient
         return await this.GetUserAsync(userUPN, userSID, false);
     }
 
+    public async Task<User> GetUserByMailNicknameAsync(string userMailNickname)
+    {
+        return await this.FindUserAsync(
+            u => string.Equals(userMailNickname, u.MailNickname, StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task<User> GetUserBySIDAsync(string userSID)
     {
         return await this.FindUserAsync(
@@ -335,8 +383,8 @@ public class AzureADClient : IAzureADClient
     public async Task<User> GetUserAsync(string userUPN, string userSID, bool suppressUserNotFound)
     {
         return await this.FindUserAsync(
-            u => 
-                (string.Equals(userUPN, u.UserPrincipalName, StringComparison.OrdinalIgnoreCase)) || 
+            u =>
+                (string.Equals(userUPN, u.UserPrincipalName, StringComparison.OrdinalIgnoreCase)) ||
                 ((string.Equals(userSID, u.OnPremisesSecurityIdentifier, StringComparison.OrdinalIgnoreCase))));
     }
 
